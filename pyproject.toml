@@ -1,0 +1,20 @@
+# pyproject.toml
+[build-system]
+requires = [ "setuptools", "numpy", "cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "napiod"
+version = "0.1.0"
+description = "Non-average price impact in order driven markets"
+authors = [
+{name="Claudio Bellani", email="claudio.bellani01@gmail.com"}]
+dependencies = [
+	"numpy<1.22",
+        "scipy",
+        "ipykernel",
+        "matplotlib",
+]
+
+[tool.setuptools.packages]
+find = {}

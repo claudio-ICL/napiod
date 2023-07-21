@@ -1,0 +1,12 @@
+name: napiodtest
+dependencies:
+  - python=3.9
+  - numpy<1.22
+  - pytest
+  - matplotlib
+  - seaborn
+  - pip
+
+# The wheel of `mpoints` have been installed manually in this environment as follows
+# $ pip install mpoints-0.1.0-cp39-cp39-linux_x86_64.whl
+

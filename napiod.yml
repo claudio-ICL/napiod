@@ -1,0 +1,11 @@
+name: napiod
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy<1.22
+  - scipy
+  - ipykernel
+  - matplotlib
+# Try and keep this aligned and consistent with mpoints.yml
+

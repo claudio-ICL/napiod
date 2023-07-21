@@ -32,6 +32,7 @@ jobs:
         python -m pip install flake8 pytest
         python -m pip install -q build
         python -m pip install cython
+        python -m pip install numpy
     - name: Install mpoints
       run: |
         cd mpoints/mpoints

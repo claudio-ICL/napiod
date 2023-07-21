@@ -22,7 +22,7 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies from Actions
       run: |
-        conda env update --file actions.yml --name base
+        conda env update --file .github/actions.yml --name base
     - name: Install mpoints
       run: |
         cd mpoints/mpoints/

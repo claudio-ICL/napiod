@@ -1,0 +1,14 @@
+name: actions
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - cython
+  - numpy<1.22
+  - scipy
+  - pip
+  - pip:
+    - flake8
+    - pytest
+    - build
+

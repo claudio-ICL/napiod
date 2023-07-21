@@ -25,10 +25,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install building tools
+      run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         python -m pip install -q build
     - name: Install mpoints
+      run: |
         cd mpoints
         python -m build
         cd ..
@@ -40,6 +42,7 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build and install napiod
+      run: |
         python -m build
         python -m pip install dist/napiod-*-cp*.whl
     - name: Test with pytest

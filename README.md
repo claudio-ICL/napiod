@@ -1,2 +1,2 @@
 # NAPIOD
-## Non-averga price impact in order-driven markets
+## Non-average price impact in order-driven markets

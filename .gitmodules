@@ -1,0 +1,3 @@
+[submodule "mpoints"]
+	path = mpoints
+	url = git@github.com:maximemorariu/mpoints.git

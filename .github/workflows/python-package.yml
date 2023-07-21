@@ -31,9 +31,13 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         python -m pip install -q build
+        python -m pip install numpy<1.22
+        python -m pip install cython
     - name: Install mpoints
       run: |
-        cd mpoints/
+        cd mpoints/mpoints
+        python setup.py build_ext --inplace
+        cd ..
         python -m build
         cd ..
         python -m pip install mpoints/dist/mpoints-*cp*.whl

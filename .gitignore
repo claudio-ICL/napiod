@@ -3,4 +3,5 @@ oldstarter/
 tests/__pycache__/
 tests/hawkes_sample.py
 napiod/__pycache__/
+napiod/build/
 

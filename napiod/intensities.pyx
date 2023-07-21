@@ -66,6 +66,55 @@ def _intensities_for_recon(
     return lambdas
 
 
+def direct_impact(
+        int direction,
+        double t,
+        double tau,
+        np.ndarray[DTYPEf_t, ndim=3] transition_probabilities,
+        np.ndarray[DTYPEf_t, ndim=1] nus,
+        np.ndarray[DTYPEf_t, ndim=3] alphas, 
+        np.ndarray[DTYPEf_t, ndim=3] betas, 
+        np.ndarray[DTYPEf_t, ndim=1] times,
+        np.ndarray[DTYPEi_t, ndim=1] events,
+        np.ndarray[DTYPEi_t, ndim=1] states,
+    ):
+    if tau < t:
+        return 0.
+    cdef Py_ssize_t dx = betas.shape[1]
+    cdef np.ndarray[DTYPEf_t, ndim=3] acc = np.zeros_like(alphas)
+    cdef double intensity = .0
+    for x1 in range(dx):
+        intensity += np.sum(
+                alphas[1:, x1, 0] * _accumulator(
+                    0, 
+                    x1,
+                    0., 
+                    t,
+                    betas,
+                    times,
+                    events,
+                    states,
+                    acc
+                    )[1:, x1, 0]
+                )
+    intensity += nus[0]
+    cdef Py_ssize_t current_idx = bisect.bisect_left(times, t)
+    cdef int state = states[current_idx]
+    cdef Py_ssize_t dx3 = dx // 3
+    cdef double phi = .0
+    if direction < 0 :
+        phi = np.sum(transition_probabilities[state, 0, :dx3])
+    elif direction > 0:
+        phi = np.sum(transition_probabilities[state, 0, -dx3:])
+    else:
+       raise ValueError(0)
+    return phi * intensity
+
+
+
+
+
+
 
 
 

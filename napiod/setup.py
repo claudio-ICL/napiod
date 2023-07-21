@@ -16,11 +16,17 @@ ext_modules = [
               # comment this line when compiling on Windows
               libraries=["m"],
               extra_compile_args=["-ffast-math"]
-              )
+              ),
+    Extension(name="model",
+              sources=["model.pyx"],
+              # comment this line when compiling on Windows
+              libraries=["m"],
+              extra_compile_args=["-ffast-math"]
+              ),
 ]
 
 setup(
-    name="intensities",
+    name="napiod",
     cmdclass={"build_ext": build_ext},
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()])

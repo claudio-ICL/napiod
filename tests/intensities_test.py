@@ -22,7 +22,7 @@ class IntensitiesTest(unittest.TestCase):
         nus = np.random.uniform(low=0., high=1., size=(de,))
         alphas = .5 * \
             scipy.sparse.random(de, dx*de, density=.50).A.reshape(de, dx, de)
-        betas = np.ones((de, dx, de), dtype=float)
+        betas = np.random.uniform(low=.95, high=1.05, size=(de, dx, de))
         hhe = hybrid_hawkes_exp.HybridHawkesExp(
             number_of_event_types,
             number_of_states,

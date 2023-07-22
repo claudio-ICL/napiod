@@ -244,6 +244,140 @@ class IntensitiesTest(unittest.TestCase):
     def test_buyer_direct_impact_sensitivity(self):
         self._direct_impact_sensitivity_test(direction=1)
 
+    def _indirect_impact_sensitivity_test(
+            self,
+            direction,
+    ):
+        j = len(self.times) // 2
+        t_j = self.times[j]
+        t_j_next = self.times[j+1]
+        tau = self.times[-1]
+        s = (t_j + t_j_next) / 2.
+        t = (s + t_j_next) / 2.
+        u = (t_j + self.times[int(1.5 * j)]) / 2.
+        impact_s = intensities.indirect_impact(
+            direction,
+            s,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            self.events,
+            self.states
+        )
+        impact_t = intensities.indirect_impact(
+            direction,
+            t,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            self.events,
+            self.states
+        )
+#         print(f'impact_s: {impact_s}')
+#         print(f'impact_t: {impact_t}')
+        self.assertLessEqual(
+            abs(impact_t),
+            abs(impact_s),
+            'Absolute Indirect impact is increasing between arrival times'
+        )
+        eps = 1e-8
+        phis = eps + np.array(self.phis, copy=True)
+        symphi = np.array(phis, copy=True)
+        dx3 = self.number_of_states // 3
+        inflationary_mass = np.sum(
+            phis[:, 1:, -dx3:],
+            axis=2,
+            keepdims=True)
+        deflationary_mass = np.sum(
+            phis[:, 1:, :dx3],
+            axis=2,
+            keepdims=True)
+        dm = np.array(deflationary_mass, copy=True)
+        im = np.array(inflationary_mass, copy=True)
+        symphi[:, 1:, -dx3:] = (
+            0.5 * (inflationary_mass + deflationary_mass) *
+            symphi[:, 1:, -dx3:] / im
+        )
+        symphi[:, 1:, :dx3] = (
+            0.5 * (inflationary_mass + deflationary_mass) *
+            symphi[:, 1:, :dx3] / dm
+        )
+
+        sym_inflationary_mass = np.sum(
+            symphi[:, 1:, -dx3:],
+            axis=2,
+            keepdims=True)
+        sym_deflationary_mass = np.sum(
+            symphi[:, 1:, :dx3],
+            axis=2,
+            keepdims=True)
+#         print(f'Symmetric Deflationary masses: \n {sym_deflationary_mass}')
+#         print(f'Symmetric Inflationary masses: \n {sym_inflationary_mass}')
+        self.assertTrue(
+            np.allclose(
+                sym_inflationary_mass,
+                sym_deflationary_mass,
+                atol=1e-5,
+                rtol=1e-3,
+            )
+        )
+        sym_impact_t = intensities.indirect_impact(
+            direction,
+            t,
+            symphi,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            self.events,
+            self.states
+        )
+        sym_impact_u = intensities.indirect_impact(
+            direction,
+            u,
+            symphi,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            self.events,
+            self.states
+        )
+#         print(f'sym_impact_t: {sym_impact_t}')
+#         print(f'sym_impact_u: {sym_impact_u}')
+        self.assertTrue(
+            np.allclose(
+                sym_impact_u,
+                .0,
+                atol=1e-12,
+                rtol=1e-6,
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                sym_impact_t,
+                .0,
+                atol=1e-12,
+                rtol=1e-6,
+            )
+        )
+
+    def test_buyer_indirect_impact_sensitivity(
+            self):
+        self._indirect_impact_sensitivity_test(
+            1
+        )
+
+    def test_seller_indirect_impact_sensitivity(
+            self):
+        self._indirect_impact_sensitivity_test(
+            -1
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -111,6 +111,52 @@ def direct_impact(
     return phi * intensity
 
 
+def indirect_impact(
+        int direction,
+        double t,
+        np.ndarray[DTYPEf_t, ndim=3] transition_probabilities,
+        np.ndarray[DTYPEf_t, ndim=1] nus,
+        np.ndarray[DTYPEf_t, ndim=3] alphas, 
+        np.ndarray[DTYPEf_t, ndim=3] betas, 
+        np.ndarray[DTYPEf_t, ndim=1] times,
+        np.ndarray[DTYPEi_t, ndim=1] events,
+        np.ndarray[DTYPEi_t, ndim=1] states,
+    ):
+    cdef Py_ssize_t de = betas.shape[0]
+    cdef Py_ssize_t dx = betas.shape[1]
+    cdef int sign = 0
+    if direction < 0:
+        sign = -1
+    elif direction > 0:
+        sign = 1
+    else:
+       raise ValueError(0)
+    cdef Py_ssize_t current_idx = bisect.bisect_left(times, t)
+    cdef int state = states[current_idx]
+    cdef Py_ssize_t dx3 = dx // 3
+    cdef np.ndarray[DTYPEf_t, ndim=1] phis = np.zeros(de-1, dtype=DTYPEf)
+    phis = sign * (
+            np.sum(transition_probabilities[state, 1:, -dx3:], axis=1) - 
+            np.sum(transition_probabilities[state, 1:, :dx3], axis=1) 
+            )
+    cdef np.ndarray[DTYPEf_t, ndim=3] acc = np.zeros_like(alphas)
+    cdef np.ndarray[DTYPEf_t, ndim=1] intensities = np.zeros(de-1, dtype=DTYPEf)
+    for x1 in range(dx):
+        intensities += alphas[0, x1, 1:] * _accumulator(
+                    0, 
+                    x1,
+                    0., 
+                    t,
+                    betas,
+                    times,
+                    events,
+                    states,
+                    acc
+                    )[0, x1, 1:]
+    cdef double impact = np.sum(phis * intensities)
+    return impact
+
+
 
 
 

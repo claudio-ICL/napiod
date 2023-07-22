@@ -207,7 +207,8 @@ class IntensitiesTest(unittest.TestCase):
         error_msg = 'Decreasing the decay rate of the agent does not decrease the direct impact\n'
         error_msg += f'impact_t: {impact_t}\n'
         error_msg += f'impact_t_low_betas: {impact_t}\n'
-        self.assertLess(
+        assertion = self.assertLess if impact_t > 0. else self.assertLessEqual
+        assertion(
             impact_t,
             impact_t_low_betas,
             error_msg

@@ -17,6 +17,12 @@ ext_modules = [
               libraries=["m"],
               extra_compile_args=["-ffast-math"]
               ),
+    Extension(name="impact",
+              sources=["impact.pyx"],
+              # comment this line when compiling on Windows
+              libraries=["m"],
+              extra_compile_args=["-ffast-math"]
+              ),
     Extension(name="model",
               sources=["model.pyx"],
               # comment this line when compiling on Windows

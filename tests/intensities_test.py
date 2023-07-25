@@ -1,4 +1,6 @@
 import unittest
+import timeit
+import cProfile
 import numpy as np
 import scipy
 from mpoints import hybrid_hawkes_exp
@@ -7,14 +9,14 @@ from napiod import intensities
 
 class IntensitiesTest(unittest.TestCase):
     def setUp(self):
-        number_of_event_types: int = 5
+        number_of_event_types: int = 4
         de = number_of_event_types
         number_of_states: int = 9
         dx = number_of_states
         events_labels = [chr(65 + n) for n in range(number_of_event_types)]
         states_labels = [chr(48 + n) for n in range(number_of_states)]
         _phis = [np.eye(dx) + scipy.sparse.random(dx, dx,
-                                                  density=.50).A for _ in range(de)]
+                                                  density=.6).A for _ in range(de)]
         _phis = [_phi / 10*np.sum(_phi, axis=1, keepdims=True)
                  for _phi in _phis]
         _phis = [np.expand_dims(_phi, axis=1) for _phi in _phis]
@@ -131,6 +133,150 @@ class IntensitiesTest(unittest.TestCase):
             )
         )
 
+    def test_accumulator_step_at_start(self):
+        e: int = self.events[0]
+        x: int = self.states[0]
+        t0: float = self.times[0] / 2.
+        t1: float = (self.times[0] + self.times[1]) / 2.
+        self._test_accumulator_step(e, x, t0, t1)
+        e = self.number_of_event_types - 1 if e == 0 else e - 1
+        x = self.number_of_states - 1 if x == 0 else x - 1
+        self._test_accumulator_step(e, x, t0, t1)
+
+    def test_accumulator_step_at_second_start(self):
+        e: int = self.events[0]
+        x: int = self.states[0]
+        t0: float = (self.times[0] + self.times[1]) / 2.
+        t1: float = (self.times[1] + self.times[2]) / 2.
+        self._test_accumulator_step(e, x, t0, t1)
+        e = self.number_of_event_types - 1 if e == 0 else e - 1
+        x = self.number_of_states - 1 if x == 0 else x - 1
+        self._test_accumulator_step(e, x, t0, t1)
+
+    def test_accumulator_step_random(self):
+        e: int = np.random.randint(low=0, high=self.number_of_event_types)
+        x: int = np.random.randint(low=0, high=self.number_of_states)
+        t1: float = 1e-9 + np.random.choice(self.times[len(self.times) // 2:])
+        t0: float = t1 / 2.
+        self._test_accumulator_step(e, x, t0, t1)
+
+    def _test_accumulator_step(self, e, x,  t0, t1):
+
+        def recon(s, t, acc_vector, acc_step):
+            acc_vector = intensities._accumulator(
+                e,
+                x,
+                s,
+                t,
+                self.betas,
+                self.times,
+                self.events,
+                self.states,
+                acc_vector
+            )
+            acc_step = intensities._acc_step_recon(
+                e,
+                x,
+                s,
+                t,
+                self.betas,
+                self.times,
+                self.events,
+                self.states,
+                acc_step
+            )
+#             print(f'acc_vector:\n{acc_vector}')
+#             print(f'acc_step:\n{acc_step}')
+            error_msg = f'\nacc_vector and acc_step do not reconcile in the increment from s={s} to  t={t}\n'
+            error_msg += f'acc_vector:\n{acc_vector}\n\n'
+            error_msg += f'acc_step:\n{acc_step}\n\n'
+            self.assertTrue(
+                np.allclose(
+                    acc_vector,
+                    acc_step,
+                    atol=1e-12,
+                    rtol=1e-7,
+                ),
+                error_msg,
+            )
+            return acc_vector, acc_step
+#         print('\n...Testing accumulator step.....')
+#         print(f'e: {e}')
+#         print(f'x: {x}')
+#         print(f't0: {t0}')
+#         print(f't1: {t1}')
+        acc_vector = np.zeros_like(self.alphas)
+        acc_step = np.zeros_like(self.alphas)
+        acc_vector, acc_step = recon(
+            0., t0, acc_vector, acc_step)
+        acc_vector, acc_step = recon(
+            t0, t1, acc_vector, acc_step)
+
+    def test_acc_step_for_impact_at_start(self):
+        j = 0
+        tj = self.times[j]
+        tj_next = self.times[j+1]
+        t = (tj + tj_next) / 2.
+        self._recon_acc_for_impact_and_acc_for_intensity(t)
+
+    def test_acc_step_for_impact(self):
+        j = np.random.randint(len(self.times) - 1)
+        tj = self.times[j]
+        tj_next = self.times[j+1]
+        t = (tj + tj_next) / 2.
+        self._recon_acc_for_impact_and_acc_for_intensity(t)
+
+    def _recon_acc_for_impact_and_acc_for_intensity(self, t):
+        #         print('.....Recon accumulator for intensity and accumulator for impact....')
+        #         print(f't: {t}')
+        acc_full = np.zeros_like(self.alphas)
+        for x1 in range(self.number_of_states):
+            acc = np.zeros_like(self.alphas)
+            intensities._acc_step_recon(
+                0,
+                x1,
+                .0,
+                t,
+                self.betas,
+                self.times,
+                self.events,
+                self.states,
+                acc
+            )
+            acc_full[:, x1, :] = acc[:, x1, :]
+        acc_imp = np.zeros_like(self.alphas)
+        acc_imp = intensities._acc_step_for_impact_recon(
+            .0,
+            t,
+            self.betas,
+            self.times,
+            self.events,
+            self.states,
+            acc_imp
+        )
+#         print(f'acc_full:\n{acc_full}')
+#         print(f'acc_imp:\n{acc_imp}')
+        rtol = 1e-7
+        atol = 1e-12
+        is_close = np.isclose(
+            acc_full, acc_imp, rtol=rtol, atol=atol)
+        error_msg = 'The accumulator for the impact intensity does not reconcile with the full accumulator\n'
+        error_msg += f'acc_full:\n{acc_full}\n\n'
+        error_msg += f'acc_imp:\n{acc_imp}\n'
+        error_msg += '\nNon-reconciled entries:\n'
+        error_msg += f'acc_full:\n{acc_full[~is_close]}\n\n'
+        error_msg += f'acc_imp:\n{acc_imp[~is_close]}\n'
+
+        self.assertTrue(
+            np.allclose(
+                acc_full,
+                acc_imp,
+                rtol=rtol,
+                atol=atol,
+            ),
+            error_msg
+        )
+
     def _direct_impact_sensitivity_test(
             self,
             direction,
@@ -142,7 +288,7 @@ class IntensitiesTest(unittest.TestCase):
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         self.assertEqual(
-            intensities.direct_impact(
+            intensities.direct_impact_spot_intensity(
                 direction,
                 t_j_next,
                 t_j,
@@ -157,7 +303,7 @@ class IntensitiesTest(unittest.TestCase):
             0.,
             'Direct impact after execution is not zero'
         )
-        impact_s = intensities.direct_impact(
+        impact_s = intensities.direct_impact_spot_intensity(
             direction,
             s,
             tau,
@@ -169,7 +315,7 @@ class IntensitiesTest(unittest.TestCase):
             self.events,
             self.states
         )
-        impact_t = intensities.direct_impact(
+        impact_t = intensities.direct_impact_spot_intensity(
             direction,
             t,
             tau,
@@ -190,7 +336,7 @@ class IntensitiesTest(unittest.TestCase):
         )
         low_betas = np.array(self.betas, copy=True)
         low_betas[1:, :, 0] /= 2.
-        impact_t_low_betas = intensities.direct_impact(
+        impact_t_low_betas = intensities.direct_impact_spot_intensity(
             direction,
             t,
             tau,
@@ -219,8 +365,12 @@ class IntensitiesTest(unittest.TestCase):
         else:
             phis_[:, 0, -(self.number_of_states//3):] = 0.
         mass = np.sum(phis_[:, 0, :], axis=1, keepdims=True)
+        if not np.all(mass > 0.):
+            print(
+                'Warning: some of the masses of transitions probabilities associated with event 0 are null')
+            return
         phis_[:, 0, :] /= mass
-        impact_t_zero_phis = intensities.direct_impact(
+        impact_t_zero_phis = intensities.direct_impact_spot_intensity(
             direction,
             t,
             tau,
@@ -238,9 +388,11 @@ class IntensitiesTest(unittest.TestCase):
             1e-9,
         )
 
+    # @unittest.skip('Skip while testing the impact trajectory')
     def test_seller_direct_impact_sensitivity(self):
         self._direct_impact_sensitivity_test(direction=-1)
 
+    # @unittest.skip('Skip while testing the impact trajectory')
     def test_buyer_direct_impact_sensitivity(self):
         self._direct_impact_sensitivity_test(direction=1)
 
@@ -255,7 +407,7 @@ class IntensitiesTest(unittest.TestCase):
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         u = (t_j + self.times[int(1.5 * j)]) / 2.
-        impact_s = intensities.indirect_impact(
+        impact_s = intensities.indirect_impact_spot_intensity(
             direction,
             s,
             self.phis,
@@ -266,7 +418,7 @@ class IntensitiesTest(unittest.TestCase):
             self.events,
             self.states
         )
-        impact_t = intensities.indirect_impact(
+        impact_t = intensities.indirect_impact_spot_intensity(
             direction,
             t,
             self.phis,
@@ -325,7 +477,7 @@ class IntensitiesTest(unittest.TestCase):
                 rtol=1e-3,
             )
         )
-        sym_impact_t = intensities.indirect_impact(
+        sym_impact_t = intensities.indirect_impact_spot_intensity(
             direction,
             t,
             symphi,
@@ -336,7 +488,7 @@ class IntensitiesTest(unittest.TestCase):
             self.events,
             self.states
         )
-        sym_impact_u = intensities.indirect_impact(
+        sym_impact_u = intensities.indirect_impact_spot_intensity(
             direction,
             u,
             symphi,
@@ -376,6 +528,273 @@ class IntensitiesTest(unittest.TestCase):
             self):
         self._indirect_impact_sensitivity_test(
             -1
+        )
+
+    def test_seller_impact_trajectory_and_spot_impact(
+            self):
+        direction = -1
+        half = len(self.times) // 2
+        j = half + np.random.choice(half)
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[0] / 4.
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt
+        )
+
+    def test_buyer_impact_trajectory_and_spot_impact(
+            self):
+        direction = 1
+        half = len(self.times) // 2
+        j = half + np.random.choice(half)
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[0] / 4.
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt
+        )
+
+    def test_fine_seller_impact_trajectory_and_spot_impact_at_start_with_no_agent_event(
+            self):
+        direction = -1
+        j = 1
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = .85 * self.times[0] / 2.
+        events = np.array(self.events, copy=True)
+        if events[0] == 0:
+            events[0] = np.random.choice(
+                list(range(1, self.number_of_event_types)))
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_fine_seller_impact_trajectory_and_spot_impact_at_start_with_agent_event(
+            self):
+        direction = -1
+        j = 1
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = .85 * self.times[0] / 2.
+        events = np.array(self.events, copy=True)
+        events[0] = 0
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_fine_buyer_impact_trajectory_and_spot_impact_at_start_with_agent_event(
+            self):
+        direction = 1
+        j = 1
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = .85 * self.times[0] / 2.
+        events = np.array(self.events, copy=True)
+        events[0] = 0
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_impact_trajectory_and_spot_impact_at_first_10(
+            self):
+        direction = int(np.random.choice([-1, 1]))
+        j = max(1, -1 + min(11, len(self.times)))
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[j + 1]
+        events = self.events
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_fine_impact_trajectory_and_spot_impact_at_first_10(
+            self):
+        direction = int(np.random.choice([-1, 1]))
+        j = max(1, -1 + min(11, len(self.times)))
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = float(
+            np.random.uniform(low=.5, high=.95) * self.times[0] / 2.
+        )
+        events = self.events
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_seller_impact_trajectory_and_spot_impact_at_start_with_no_agent_event(
+            self):
+        direction = -1
+        j = 1
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[0] + 1.
+        events = np.array(self.events, copy=True)
+        if events[0] == 0:
+            events[0] = np.random.choice(
+                list(range(1, self.number_of_event_types)))
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_seller_impact_trajectory_and_spot_impact_at_start_with_agent_event(
+            self):
+        direction = -1
+        j = 1
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[0] + 1.
+        events = np.array(self.events, copy=True)
+        events[0] = 0
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_seller_impact_trajectory_and_spot_impact_at_second_start_with_agent_event(
+            self):
+        direction = -1
+        j = 2
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[j] + 1.
+        events = np.array(self.events, copy=True)
+        events[0] = 0
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def test_seller_impact_trajectory_and_spot_impact_at_second_start(
+            self):
+        direction = -1
+        j = 2
+        tj = self.times[j]
+        t = (self.times[j-1] + tj) / 2.
+        tau = self.times[-1] + 1e-4
+        dt = self.times[j] + 1.
+        events = self.events
+        self._recon_impact_trajectory_and_spot_impact(
+            direction,
+            t,
+            tau,
+            dt,
+            events,
+        )
+
+    def _recon_impact_trajectory_and_spot_impact(
+            self,
+            direction,
+            t,
+            tau,
+            dt,
+            events=None
+    ):
+        if events is None:
+            events = self.events
+        di = intensities.direct_impact_spot_intensity(
+            direction,
+            t,
+            tau,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            events,
+            self.states,
+        )
+        ii = intensities.indirect_impact_spot_intensity(
+            direction,
+            t,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            events,
+            self.states,
+        )
+        impact = intensities.impact(
+            direction,
+            t,
+            tau,
+            dt,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            events,
+            self.states,
+        )
+        tell_time = f't: {t}\n'
+        tell_direct_impact = f'Direct impact: {di}\n'
+        tell_indirect_impact = f'Indirect impact: {ii}\n'
+        tell_last_point = f'len(impact): {len(impact)}; impact[-5:, :]:\n {impact[-5:, :]}\n'
+#         print(tell_time)
+#         print(tell_direct_impact)
+#         print(tell_indirect_impact)
+#         print(tell_last_point)
+        error_msg = '\nImpact from trajectory does not reconcile with spot impact\n'
+        error_msg += tell_time
+        error_msg += tell_direct_impact + tell_indirect_impact
+        error_msg += tell_last_point
+        self.assertTrue(
+            np.allclose(
+                np.array(
+                    [t, di, ii]
+                ),
+                impact[-1, :],
+                rtol=1e-4,
+                atol=1e-8,
+            ),
+            error_msg
         )
 
 

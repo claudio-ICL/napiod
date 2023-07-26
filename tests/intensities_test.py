@@ -1,6 +1,4 @@
 import unittest
-import timeit
-import cProfile
 import numpy as np
 import scipy
 from mpoints import hybrid_hawkes_exp

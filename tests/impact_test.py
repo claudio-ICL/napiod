@@ -5,7 +5,7 @@ from mpoints import hybrid_hawkes_exp
 from napiod import impact
 
 
-class IntensitiesTest(unittest.TestCase):
+class ImpactTest(unittest.TestCase):
     def setUp(self):
         number_of_event_types: int = 4
         de = number_of_event_types

@@ -43,6 +43,7 @@ def price_impact_profile(
             states
             )
     assert len(f) > 1
+    assert f.shape[1] == 3
     cdef Py_ssize_t n = len(f) - 1
     cdef np.ndarray[DTYPEf_t, ndim=2] pip = np.zeros((n, 4), dtype=DTYPEf)
     cdef np.ndarray[DTYPEf_t, ndim=1] delta_t = np.diff(f[:, 0])

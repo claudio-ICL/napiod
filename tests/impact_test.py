@@ -97,12 +97,41 @@ class IntensitiesTest(unittest.TestCase):
         )
 #         print(f'pip.shape: {pip.shape}')
 #         print(f'half.shape: {half.shape}')
+        self.assertEqual(
+            pip.shape,
+            (len(pip), 4)
+        )
+        self.assertEqual(
+            half.shape,
+            (1 + idx_half, 4)
+        )
+        self.assertTrue(
+            np.all(
+                np.diff(pip[:, 0]) > 0.
+            ),
+            '\nTimes in the price impact profiles are not increasing!'
+        )
+        self.assertTrue(
+            np.all(
+                np.diff(pip[:, 1]) >= 0.
+            ),
+            '\nThe profile of the direct price impact is decreasing!'
+        )
+        self.assertTrue(
+            np.allclose(
+                pip[:, 3],
+                pip[:, 1] + pip[:, 2],
+                rtol=1e-6,
+                atol=1e-12,
+            ),
+            '\nOverall impact is not the sum of direct and indirect impacts'
+        )
         self.assertTrue(
             np.allclose(
                 half,
                 pip[:len(half), :],
                 rtol=1e-6,
-                atol=1e-9,
+                atol=1e-12,
             )
         )
 

@@ -1,4 +1,5 @@
 import unittest
+import bisect
 import numpy as np
 import scipy
 from mpoints import hybrid_hawkes_exp
@@ -14,8 +15,8 @@ class IntensitiesTest(unittest.TestCase):
         events_labels = [chr(65 + n) for n in range(number_of_event_types)]
         states_labels = [chr(48 + n) for n in range(number_of_states)]
         _phis = [np.eye(dx) + scipy.sparse.random(dx, dx,
-                                                  density=.6).A for _ in range(de)]
-        _phis = [_phi / 10*np.sum(_phi, axis=1, keepdims=True)
+                                                  density=.75).A for _ in range(de)]
+        _phis = [_phi / np.sum(_phi, axis=1, keepdims=True)
                  for _phi in _phis]
         _phis = [np.expand_dims(_phi, axis=1) for _phi in _phis]
         phis = np.concatenate(_phis, axis=1)
@@ -386,11 +387,9 @@ class IntensitiesTest(unittest.TestCase):
             1e-9,
         )
 
-    # @unittest.skip('Skip while testing the impact trajectory')
     def test_seller_direct_impact_sensitivity(self):
         self._direct_impact_sensitivity_test(direction=-1)
 
-    # @unittest.skip('Skip while testing the impact trajectory')
     def test_buyer_direct_impact_sensitivity(self):
         self._direct_impact_sensitivity_test(direction=1)
 
@@ -793,6 +792,55 @@ class IntensitiesTest(unittest.TestCase):
                 atol=1e-8,
             ),
             error_msg
+        )
+
+    def test_after_sell_execution_decrease(self):
+        direction = -1
+        t = self.times[-1]
+        tau = self.times[len(self.times) // 2]
+        self._test_after_execution_decrease(
+            direction,
+            t,
+            tau
+        )
+
+    def test_after_buy_execution_decrease(self):
+        direction = 1
+        t = self.times[-1]
+        tau = self.times[len(self.times) // 2]
+        self._test_after_execution_decrease(
+            direction,
+            t,
+            tau
+        )
+
+    def _test_after_execution_decrease(
+            self,
+            direction,
+            t,
+            tau
+    ):
+        dt = .25 * self.times[0]
+        impact = intensities.impact(
+            direction,
+            t,
+            tau,
+            dt,
+            self.phis,
+            self.nus,
+            self.alphas,
+            self.betas,
+            self.times,
+            self.events,
+            self.states,
+        )
+        t1 = bisect.bisect_right(impact[:, 0], tau)
+        self.assertTrue(
+            np.allclose(
+                np.diff(impact[t1:, 1]),
+                0.
+            ),
+            'Intensity of direct impact is not null after execution',
         )
 
 

@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import bisect
 import scipy
 from mpoints import hybrid_hawkes_exp
 from napiod import impact
@@ -7,15 +8,15 @@ from napiod import impact
 
 class ImpactTest(unittest.TestCase):
     def setUp(self):
-        number_of_event_types: int = 4
+        number_of_event_types: int = 5
         de = number_of_event_types
         number_of_states: int = 9
         dx = number_of_states
         events_labels = [chr(65 + n) for n in range(number_of_event_types)]
         states_labels = [chr(48 + n) for n in range(number_of_states)]
         _phis = [np.eye(dx) + scipy.sparse.random(dx, dx,
-                                                  density=.6).A for _ in range(de)]
-        _phis = [_phi / 10*np.sum(_phi, axis=1, keepdims=True)
+                                                  density=.75).A for _ in range(de)]
+        _phis = [_phi / np.sum(_phi, axis=1, keepdims=True)
                  for _phi in _phis]
         _phis = [np.expand_dims(_phi, axis=1) for _phi in _phis]
         phis = np.concatenate(_phis, axis=1)
@@ -133,6 +134,14 @@ class ImpactTest(unittest.TestCase):
                 rtol=1e-6,
                 atol=1e-12,
             )
+        )
+        t1 = bisect.bisect_right(pip[:, 0], execution_end)
+        self.assertTrue(
+            np.allclose(
+                np.diff(pip[t1:, 1]),
+                0.
+            ),
+            'Direct impact is not flat after execution'
         )
 
 

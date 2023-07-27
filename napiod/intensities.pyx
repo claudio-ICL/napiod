@@ -91,12 +91,13 @@ def impact(
                     )
 
         imp[n, 0] = s
-        imp[n, 1] = direct_phi * (nu + np.sum(
-                    np.sum(
-                        alphas[1:, :, 0] * acc[1:, :, 0],
-                        axis=1
-                        )
-            ))
+        if s <= tau:
+            imp[n, 1] = direct_phi * (nu + np.sum(
+                        np.sum(
+                            alphas[1:, :, 0] * acc[1:, :, 0],
+                            axis=1
+                            )
+                ))
         imp[n, 2] = np.sum(
                 indirect_phis * np.sum(
                     alphas[0, :, 1:] * acc[0, :, 1:],

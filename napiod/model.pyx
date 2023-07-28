@@ -14,23 +14,23 @@ ctypedef np.int64_t DTYPEi_t
 ctypedef np.uint8_t DTYPEb_t
 
 EVENTS = (
-        'agent', 
-        'sell_mo',
-        'buy_mo',
-        'deflo',
-        'inflo',
+        'agent',  # Agent executes a trade by sending a market order
+        'sell_mo', # Sell market order, i.e. execution of order on the bid side 
+        'buy_mo', # Buy market order, i.e. execution of order on the ask side 
+        'deflo', # Deflationary limit order, i.e. a new ask limit order is posted with price limit lower than the existing best ask price, or the existing best bid limit order is cancelled 
+        'inflo', # Inflationary limit order, i.e. a new bid limit order is posted with price limit higher than the existing best bid price, or the existing best ask limit order is cancelled
         )
 
 STATES = (
-        'd_neg',
-        'd_neu',
-        'd_pos',
-        'f_neg',
-        'f_neu',
-        'f_pos',
-        'u_neg',
-        'u_neu',
-        'u_pos',
+        'd-', # Down-negative, i.e. mid-price drops and volume imbalance is negative ( <  - .33)
+        'd0', # Down-neutral, i.e. mid-price drops and volume imbalance is neutral (> - 0.33, < + 0.33)
+        'd+', # Down-positive, i.e. mid-price drops and volume imbalance is positive (> + 0.33)
+        's-', # Stable-negative, i.e. mid-price is unchanged and volume imbalance is negative ( <  - .33)
+        's0', # Stable-neutral, i.e. mid-price is unchanged and volume imbalance is neutral ( >  - .33, < +.33)
+        's+', # Stable-positive, i.e. mid-price is unchanged and volume imbalance is positive (< +.33)
+        'u-', # Up-negative, i.e. mid-price increases and volume imbalance is negative ( <  - .33)
+        'u0', # Up-neutral, i.e. mid-price increases and volume imbalance is neutral ( >  - .33, < +.33)
+        'u+', # Up-positive, i.e. mid-price increases and volume imbalance is positive (< +.33)
 )
 
 AGENT_INDEX = 0  
@@ -204,6 +204,22 @@ class PriceImpact:
 def idem_event(int direction):
     cdef Py_ssize_t e = 0 if direction < 0 else 1
     return e
+
+
+def generate_random_hawkes_parameters(
+        int with_agent = 1,
+        ):
+    dx = TOTAL_NUMBER_OF_STATES
+    if with_agent:
+        de = TOTAL_NUMBER_OF_EVENT_TYPES
+    else:
+        de = NUMBER_OF_ORDERBOOK_EVENTS
+    nus = np.random.uniform(low=0., high=1., size=(de,))
+    alphas = .5 * \
+        scipy.sparse.random(de, dx*de, density=.50).A.reshape(de, dx, de)
+    betas = np.random.uniform(low=.95, high=1.05, size=(de, dx, de))
+    return nus, alphas, betas
+
 
 def generate_random_transition_probabilities(
         int with_agent = 1,
@@ -465,6 +481,14 @@ def state_variable_to_state_index(
     """
     return (price_change + 1) * num_discretisations + (num_discretisations // 2 + imbalance)
 
+def state_indexes_with_positive_imbalances():
+    for price_change in (-1, 0, 1):
+        yield state_variable_to_state_index(price_change, 1)
+
+def state_indexes_with_negative_imbalances():
+    for price_change in (-1, 0, 1):
+        yield state_variable_to_state_index(price_change, -1)
+
 def price_changes_from_states(
         np.ndarray[DTYPEi_t, ndim=1] states
         ):
@@ -492,6 +516,13 @@ def imbalance_from_state_index(
         ):
     cdef int imbalance = (x %  num_discretisations) - (num_discretisations // 2)
     return imbalance
+
+def imbalances_from_states(
+        np.ndarray[DTYPEi_t, ndim=1] states,
+        int num_discretisations = NUMBER_OF_IMBALANCE_SEGMENTS,
+        ):
+    cdef np.ndarray[DTYPEi_t, ndim=1] imbalances = (states % num_discretisations) - (num_discretisations // 2)
+    return imbalances
 
 def stationary_state_indexes(
         int num_discretisations = NUMBER_OF_IMBALANCE_SEGMENTS,

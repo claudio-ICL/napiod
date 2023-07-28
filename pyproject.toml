@@ -14,6 +14,7 @@ dependencies = [
         "scipy",
         "ipykernel",
         "matplotlib",
+	"seaborn",
 ]
 
 [tool.setuptools.packages]

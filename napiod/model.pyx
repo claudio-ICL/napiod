@@ -40,6 +40,56 @@ NUMBER_OF_POSSIBLE_PRICE_MOVEMENTS = 3
 NUMBER_OF_IMBALANCE_SEGMENTS = 3
 TOTAL_NUMBER_OF_STATES = NUMBER_OF_POSSIBLE_PRICE_MOVEMENTS * NUMBER_OF_IMBALANCE_SEGMENTS
 
+class Constants:
+    @staticmethod
+    def non_inflationary_events():
+        return [1, 3]
+
+    @staticmethod
+    def non_deflationary_events():
+        return [2, 4]
+
+    @staticmethod
+    def stationary_states():
+        return list(stationary_state_indexes())
+
+    @staticmethod
+    def non_inflationary_states():
+        return sorted(
+            list(deflationary_state_indexes()) +
+            list(stationary_state_indexes())
+        )
+
+    @staticmethod
+    def non_deflationary_states():
+        return sorted(
+            list(inflationary_state_indexes()) +
+            list(stationary_state_indexes())
+        )
+
+    @staticmethod
+    def shape_of_transition_matrix():
+        return (
+            TOTAL_NUMBER_OF_STATES,
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+            TOTAL_NUMBER_OF_STATES,
+        )
+
+    @staticmethod
+    def shape_of_impact_coefficients():
+        return (
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+            TOTAL_NUMBER_OF_STATES,
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+        )
+
+    @staticmethod
+    def shape_of_decay_coefficients():
+        return (
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+            TOTAL_NUMBER_OF_STATES,
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+        )
 
 
 class PriceImpact:

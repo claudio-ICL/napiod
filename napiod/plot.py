@@ -1,4 +1,5 @@
 from napiod import model
+import numpy as np
 import copy
 import bisect
 import matplotlib.pyplot as plt
@@ -16,6 +17,7 @@ def price_path(
         time_start,
         time_end,
         initial_price=0,
+        num_subplots=2,
 ):
     # Reconstruct the price path from the states of the model
     prices = model.price_path_from_states(initial_price, states)
@@ -27,7 +29,7 @@ def price_path(
     imbalances = list(copy.copy(imbalances[t0: t1]))
     times = list(copy.copy(times[t0: t1]))
 
-    f, axes = plt.subplots(2, 1, sharex='col')
+    f, axes = plt.subplots(num_subplots, 1, sharex='col')
 
     # Price path
     ax_price = axes[0]
@@ -91,4 +93,66 @@ def price_impact_profile(
     ax_indirect.legend()
     ax_indirect.set_xlabel('Time')
 
+    return f, axes
+
+
+def agent_execution(
+        times,
+        events,
+        time_start,
+        time_end,
+        fig=None,
+):
+    is_agent = events == model.AGENT_INDEX
+    agent_times = np.array(
+        times[is_agent],
+        copy=True)
+    agent_counter = 1 + np.arange(np.sum(is_agent))
+    t0 = bisect.bisect(agent_times, time_start)
+    t1 = bisect.bisect_right(agent_times, time_end)
+    pret0 = max(0, t0 - 1)
+    pret1 = max(pret0, t1 - 1)
+    plot_times = np.concatenate(
+        ([time_start], agent_times[t0: t1], [time_end]))
+    plot_counter = np.concatenate(
+        (agent_counter[[pret0]], agent_counter[t0: t1], agent_counter[[pret1]]))
+
+    if fig is None:
+        fig, axes = plt.subplots(1, 1)
+        ax = axes
+    else:
+        ax = fig.axes[-1]
+
+    ax.step(plot_times, plot_counter, where='post', color='red', label="agent")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Number of market orders")
+    ax.legend()
+
+    return fig, fig.axes
+
+
+def price_path_and_agent_execution(
+        times,
+        events,
+        states,
+        time_start,
+        time_end,
+        initial_price=0,
+):
+    f, axes = price_path(
+        times,
+        events,
+        states,
+        time_start,
+        time_end,
+        initial_price,
+        3
+    )
+    f, axes = agent_execution(
+        times,
+        events,
+        time_start,
+        time_end,
+        fig=f
+    )
     return f, axes

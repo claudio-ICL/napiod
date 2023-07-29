@@ -75,7 +75,7 @@ def main():
     )
 
     # Reconstruct the price path from the simulated states of the model
-    price = napiod.model.price_path_from_states(0, states)
+    price = napiod.model.price_path_from_states(0, states)  # NOQA
 
     # Compute the agent price impact profile
     # Note: this assumes execution_start = 0.
@@ -121,5 +121,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    fig_price, fig_sample, fig_impact = main()
     plt.show()

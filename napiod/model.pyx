@@ -41,31 +41,85 @@ NUMBER_OF_IMBALANCE_SEGMENTS = 3
 TOTAL_NUMBER_OF_STATES = NUMBER_OF_POSSIBLE_PRICE_MOVEMENTS * NUMBER_OF_IMBALANCE_SEGMENTS
 
 class Constants:
+
+    @staticmethod
+    def inflationary_events():
+        return np.array([4])
+
+    @staticmethod
+    def deflationary_events():
+        return np.array([3])
+
     @staticmethod
     def non_inflationary_events():
-        return [1, 3]
+        return np.array([1, 3])
 
     @staticmethod
     def non_deflationary_events():
-        return [2, 4]
+        return np.array([2, 4])
+
+
+    @staticmethod
+    def inflationary_states():
+        return np.array(sorted(
+            list(inflationary_state_indexes())
+        ))
+
+    @staticmethod
+    def deflationary_states():
+        return np.array(sorted(
+            list(deflationary_state_indexes())
+        ))
 
     @staticmethod
     def stationary_states():
-        return list(stationary_state_indexes())
+        return np.array(list(stationary_state_indexes()))
 
     @staticmethod
     def non_inflationary_states():
-        return sorted(
+        return np.array(sorted(
             list(deflationary_state_indexes()) +
             list(stationary_state_indexes())
-        )
+        ))
 
     @staticmethod
     def non_deflationary_states():
-        return sorted(
+        return np.array(sorted(
             list(inflationary_state_indexes()) +
             list(stationary_state_indexes())
-        )
+        ))
+
+    @staticmethod
+    def positive_imbalance_states():
+        return np.array(sorted(
+                list(state_indexes_with_positive_imbalances())
+            ))
+
+    @staticmethod
+    def neutral_imbalance_states():
+        return np.array(sorted(
+                list(state_indexes_with_neutral_imbalances())
+            ))
+
+    @staticmethod
+    def negative_imbalance_states():
+        return np.array(sorted(
+                list(state_indexes_with_negative_imbalances())
+            ))
+
+    @staticmethod
+    def non_positive_imbalance_states():
+        return np.array(sorted(
+            list(state_indexes_with_negative_imbalances()) + 
+            list(state_indexes_with_neutral_imbalances())
+            ))
+
+    @staticmethod
+    def non_negative_imbalance_states():
+        return np.array(sorted(
+            list(state_indexes_with_positive_imbalances()) + 
+            list(state_indexes_with_neutral_imbalances())
+            ))
 
     @staticmethod
     def shape_of_transition_matrix():
@@ -90,6 +144,34 @@ class Constants:
             TOTAL_NUMBER_OF_STATES,
             TOTAL_NUMBER_OF_EVENT_TYPES,
         )
+
+    @staticmethod
+    def shape_of_agent_self_excitation():
+        return (
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+            TOTAL_NUMBER_OF_STATES,
+            )
+
+    @staticmethod
+    def shape_of_agent_self_decay():
+        return (
+            TOTAL_NUMBER_OF_EVENT_TYPES,
+            TOTAL_NUMBER_OF_STATES,
+            )
+
+    @staticmethod
+    def shape_of_agent_impact_on_others():
+        return (
+            TOTAL_NUMBER_OF_STATES,
+            NUMBER_OF_ORDERBOOK_EVENTS,
+            )
+
+    @staticmethod
+    def shape_of_agent_decay_on_others():
+        return (
+            TOTAL_NUMBER_OF_STATES,
+            NUMBER_OF_ORDERBOOK_EVENTS,
+            )
 
 
 class PriceImpact:
@@ -143,7 +225,7 @@ class PriceImpact:
             initial_condition_events: Optional[Sequence] = None,
             initial_condition_states: Optional[Sequence] = None,
             initial_partial_sums: Optional[np.array] = None,
-            initial_state: int = 0,
+            initial_state: int = 4,
             ):
         if horizon is None:
             if execution_end is None:
@@ -538,6 +620,10 @@ def state_indexes_with_positive_imbalances():
 def state_indexes_with_negative_imbalances():
     for price_change in (-1, 0, 1):
         yield state_variable_to_state_index(price_change, -1)
+
+def state_indexes_with_neutral_imbalances():
+    for price_change in (-1, 0, 1):
+        yield state_variable_to_state_index(price_change, 0)
 
 def price_changes_from_states(
         np.ndarray[DTYPEi_t, ndim=1] states

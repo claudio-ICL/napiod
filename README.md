@@ -71,6 +71,8 @@ and these in turn will produce updates of the state process $X$.
 A quantification of the first effect produces our measurement of direct price impact, 
 and a quantification of the second effect produces our mesurement od indirect price impact. 
 
+For more detail into the model and the measurement of price impact, please consult [Bellani et al. (2021)](https://arxiv.org/abs/2110.00771).
+
 
 ## Installation
 

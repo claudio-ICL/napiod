@@ -70,6 +70,10 @@ On the other hand, every $T^{0}_j$ alters the intensity of occurrence of the ran
 and these in turn will produce updates of the state process $X$. 
 A quantification of the first effect produces our measurement of direct price impact, 
 and a quantification of the second effect produces our mesurement od indirect price impact. 
+Direct price impact is non-negative and non-decreasing, and the larger it is the more unfavourably the mid-price moves against the agent.
+Indirect impact, instead, can be positive or negative:
+it is positive when market participants react to the agent and move the mid-price in a way unfavourable to the agent;
+it is negative when market participants react to the agent and move the mid-price in a way favourable to the agent. 
 
 For more detail into the model and the measurement of price impact, please consult [Bellani et al. (2021)](https://arxiv.org/abs/2110.00771).
 

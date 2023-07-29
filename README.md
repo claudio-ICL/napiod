@@ -2,7 +2,7 @@
 ## Non-average price impact in order-driven markets
 
 `napiod` gives a python implementation of the measurement of price impact in order-driven markets introduced in [Bellani et al. (2021)](https://arxiv.org/abs/2110.00771).
-This measurement of price impact quantifies the extent to which price movements are caused by a labelled agent in the market, either by her own market orders (direct impact) or by other market participants that react to her actions (indirect impact). 
+This measurement of price impact quantifies the extent to which price movements are caused by a labelled agent in the market, either by her own market orders (direct impact) or by other market participants reacting to her actions (indirect impact). 
 The price impact is scenario-specific and depends both on the agent's behaviour and on the market environment.
 The measurement of price impact is based on a model that utilises state-dependet Hawkes processes introduced in
 [Morariu-Patrichi and Pakkanen (2017)](https://arxiv.org/abs/1707.06970) and [Morariu-Patrichi and Pakkanen (2018)](https://arxiv.org/abs/1809.08060), and so `napiod` depends on [mpoints](https://github.com/maximemorariu/mpoints).

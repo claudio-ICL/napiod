@@ -64,7 +64,7 @@ $X_2(t) = +1$ if the latest event in the order book has increased the mid-price.
 
 The pair $(N, X)$ is modelled as a state-dependent Hawkes process. 
 
-Each agent's market order $T^{0}_j$ has a two effects.
+Each agent's market order $T^{0}_j$ has two effects.
 On the one hand, at every $T^{0}_j$ the state variable $X$ is updated, and the mid-price decreases if $X(T^{0}_j) = -1$ or it increases if $X(T^{0}_j) = +1$.
 On the other hand, every $T^{0}_j$ alters the intensity of occurrence of the random times $T^{1}$, $T^2$, $T^3$, $T^4$, 
 and these in turn will produce updates of the state process $X$. 

@@ -26,7 +26,7 @@ jobs:
       run: |
         conda env update --file .github/actions.yml --name base
     - name: Build package
-      run: python -m build
+      run: python -m build --sdist
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

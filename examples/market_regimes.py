@@ -167,7 +167,7 @@ def agent_walks_the_book():
 
 
 def trend_following_agent():
-    base_rate = .1
+    base_rate = .2
     agent_self_excitation = np.zeros(
         Constants.shape_of_agent_self_excitation(),
         dtype=float)
@@ -186,7 +186,7 @@ def trend_following_agent():
 
 
 def contrarian_agent():
-    base_rate = .1
+    base_rate = .2
     agent_self_excitation = np.zeros(
         Constants.shape_of_agent_self_excitation(),
         dtype=float)
@@ -197,7 +197,7 @@ def contrarian_agent():
     agent_self_excitation[np.ix_(
         Constants.non_deflationary_events(),
         Constants.neutral_imbalance_states())
-    ] = 1.5
+    ] = 1.
     agent_self_decay = 4. * np.ones(
         Constants.shape_of_agent_self_decay(),
         dtype=float)

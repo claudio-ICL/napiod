@@ -89,7 +89,8 @@ def balanced_hawkes_coefficients():
     return nus, alphas, betas
 
 
-def bullish_unbalanced_hawkes_coefficients():
+def bull_unbalanced_hawkes_coefficients():
+
     # base rates
     nus = np.zeros(napiod.model.TOTAL_NUMBER_OF_EVENT_TYPES, dtype=float)
     nus[Constants.non_inflationary_events()] = .20
@@ -126,6 +127,44 @@ def bullish_unbalanced_hawkes_coefficients():
     return nus, alphas, betas
 
 
+def bear_unbalanced_hawkes_coefficients():
+
+    # base rates
+    nus = np.zeros(napiod.model.TOTAL_NUMBER_OF_EVENT_TYPES, dtype=float)
+    nus[Constants.non_inflationary_events()] = .25
+    nus[Constants.non_deflationary_events()] = .20
+
+    # impact coefficients
+    alphas = np.zeros(
+        Constants.shape_of_impact_coefficients(),
+        dtype=float
+    )
+    alphas[np.ix_(
+        np.arange(alphas.shape[0]),
+        Constants.positive_imbalance_states(),
+        Constants.non_deflationary_events())] = 0.75
+    alphas[np.ix_(
+        np.arange(alphas.shape[0]),
+        Constants.negative_imbalance_states(),
+        Constants.non_inflationary_events())] = 1.5
+
+    # decay coefficients
+    betas = 4. * np.ones(
+        Constants.shape_of_impact_coefficients(),
+        dtype=float
+    )
+    betas[np.ix_(
+        np.arange(alphas.shape[0]),
+        Constants.positive_imbalance_states(),
+        Constants.non_deflationary_events())] = 3.25
+    betas[np.ix_(
+        np.arange(alphas.shape[0]),
+        Constants.negative_imbalance_states(),
+        Constants.non_inflationary_events())] = 2.95
+
+    return nus, alphas, betas
+
+
 def balanced_order_book():
     # low volatility
     phis = balanced_transition_probabilities()
@@ -138,10 +177,22 @@ def balanced_order_book():
     )
 
 
-def bullish_unbalanced_order_book():
+def bull_unbalanced_order_book():
     # high volatility
     phis = balanced_transition_probabilities()
-    nus, alphas, betas = bullish_unbalanced_hawkes_coefficients()
+    nus, alphas, betas = bull_unbalanced_hawkes_coefficients()
+    return (
+        phis[:, 1:, :],
+        nus[1:],
+        alphas[1:, :, 1:],
+        betas[1:, :, 1:],
+    )
+
+
+def bear_unbalanced_order_book():
+    # high volatility
+    phis = balanced_transition_probabilities()
+    nus, alphas, betas = bear_unbalanced_hawkes_coefficients()
     return (
         phis[:, 1:, :],
         nus[1:],
@@ -327,12 +378,21 @@ def main():
     )
 
     _, _ = run(
-        bullish_unbalanced_order_book,
+        bear_unbalanced_order_book,
+        agent_walks_the_book,
+        trend_following_agent,
+        market_withdraws_liquidity,
+        'Trend following seller in bear unbalanced illiquid market'
+    )
+
+    _, _ = run(
+        bull_unbalanced_order_book,
         agent_walks_the_book,
         contrarian_agent,
         market_provides_liquidity,
-        'Contrarian seller in bullish unbalanced liquid market'
+        'Contrarian seller in bull unbalanced liquid market'
     )
+
     plt.show()
 
 

@@ -13,20 +13,20 @@ The measurement of price impact is based on a model that utilises state-dependet
 
 We consider four streams of random times: 
 the stream 
-$ T^{1}_1, T^{1}_2, \dots $ 
+$T^{1}_1, T^{1}_2, \dots$ 
 of times when limit orders are executed on the bid side 
 (equivalently identified with the arrival times of sell market orders);
  the stream  
-$ T^{2}_1, T^{2}_2, \dots $ 
+$T^{2}_1, T^{2}_2, \dots$ 
 of times when limit orders are executed on the ask side 
 (equivalently identified with arrival times of buy market orders); 
 the stream 
-$T^{3}_1, T^{3}_2, \dots $ 
+$T^{3}_1, T^{3}_2, \dots$ 
 of times when 
 either an ask limit order is inserted inside the spread,
 or the cancellation of a bid limit order depletes the liquidity available at the first bid level;
 the stream 
-$T^{4}_1, T^{4}_2, \dots $ 
+$T^{4}_1, T^{4}_2, \dots$ 
 of times when 
 either a bid limit order is inserted inside the spread,
 or the cancellation of an ask limit order depletes the liquidity available at the first ask level.

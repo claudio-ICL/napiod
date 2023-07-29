@@ -55,9 +55,9 @@ of the limit order book at time $t$,
 by recording a proxy for the volume imbalance, 
 and the variation of the mid-price compared to time $t-$. 
 More precisely, 
-$X_1(t) = -1$ if the volumes imbalance at time $t$ is $-33%$ or more negative; 
-$X_1(t) = 0$ if the volumes imbalance at time $t$ is between $-33%$  and $+33%$; 
-$X_1(t) = +1$ if the volumes imbalance at time $t$ is $+33%$ or more positive; 
+$X_1(t) = -1$ if the volumes imbalance at time $t$ is -33% or more negative; 
+$X_1(t) = 0$ if the volumes imbalance at time $t$ is between -33%  and +33%; 
+$X_1(t) = +1$ if the volumes imbalance at time $t$ is +33% or more positive; 
 $X_2(t) = -1$ if the latest event in the order book has decreased the mid-price;
 $X_2(t) = 0$ if the latest event in the order book has left the mid-price unchanged;
 $X_2(t) = +1$ if the latest event in the order book has increased the mid-price.

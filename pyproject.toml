@@ -7,6 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "napiod"
 version = "0.1.0"
 description = "Non-average price impact in order driven markets"
+readme = "README.md"
 authors = [
 {name="Claudio Bellani", email="claudio.bellani01@gmail.com"}]
 dependencies = [

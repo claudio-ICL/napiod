@@ -11,7 +11,10 @@ The measurement of price impact is based on a model that utilises state-dependet
 
 ## The model 
 
-We consider four streams of random times: 
+We consider five streams of random times: 
+the stream 
+$T^{0}_1, T^{0}_2, \dots$ 
+of times when our labelled agent submits market orders to the market;
 the stream 
 $T^{1}_1, T^{1}_2, \dots$ 
 of times when limit orders are executed on the bid side 
@@ -31,9 +34,10 @@ of times when
 either a bid limit order is inserted inside the spread,
 or the cancellation of an ask limit order depletes the liquidity available at the first ask level.
 
-The four sequences of random times give rise to a four-dimensional counting process 
-$N=(N_1, N_2, N_3, N_4)$ 
+The five sequences of random times give rise to a five-dimensional counting process 
+$N=(N_0, N_1, N_2, N_3, N_4)$ 
 with the following interpretation of its components:
+* $N_0(t)$ denotes the number of market orders that our labelled agent has submitted before or at time $t$;
 * $N_1(t)$  denotes the number of seller-initiated trades that happened before or at time $t$
 (identified with the number of market orders arrived on the bid side of the order book by time $t$);
 * $N_2(t)$
@@ -42,9 +46,30 @@ with the following interpretation of its components:
 * $N_3(t)$ denotes the number of decreases in the mid-price 
 	 caused by a limit order insertion or cancellation that happened before or at time $t$;
 * $N_4(t)$ denotes the number of increases in the mid-price 
-	 caused by a limit order insertion or cancellation that happened before or at time $t$;
+	 caused by a limit order insertion or cancellation that happened before or at time $t$
 
 
+The counting process $N$ is paired with the state variable $X = (X_1, X_2)$. 
+At time $t$, the state variable $X(t)$ summarises the configuration 
+of the limit order book at time $t$, 
+by recording a proxy for the volume imbalance, 
+and the variation of the mid-price compared to time $t-$. 
+More precisely, 
+$X_1(t) = -1$ if the volumes imbalance at time $t$ is $-33%$ or more negative; 
+$X_1(t) = 0$ if the volumes imbalance at time $t$ is between $-33%$  and $+33%$; 
+$X_1(t) = +1$ if the volumes imbalance at time $t$ is $+33%$ or more positive; 
+$X_2(t) = -1$ if the latest event in the order book has decreased the mid-price;
+$X_2(t) = 0$ if the latest event in the order book has left the mid-price unchanged;
+$X_2(t) = +1$ if the latest event in the order book has increased the mid-price.
+
+The pair $(N, X)$ is modelled as a state-dependent Hawkes process. 
+
+Each agent's market order $T^{0}_j$ has a two effects.
+On the one hand, at every $T^{0}_j$ the state variable $X$ is updated, and the mid-price decreases if $X(T^{0}_j) = -1$ or it increases if $X(T^{0}_j) = +1$.
+On the other hand, every $T^{0}_j$ alters the intensity of occurrence of the random times $T^{1}$, $T^2$, $T^3$, $T^4$, 
+and these in turn will produce updates of the state process $X$. 
+A quantification of the first effect produces our measurement of direct price impact, 
+and a quantification of the second effect produces our mesurement od indirect price impact. 
 
 
 ## Installation

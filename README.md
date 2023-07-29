@@ -92,9 +92,9 @@ python -m build
 ```
 
 #### Install in development mode
-If you are contributing to `mpionts`, you might want to install it in development mode.
+If you are contributing to `napiod`, you might want to install it in development mode.
 See [development-mode](https://setuptools.pypa.io/en/latest/userguide/quickstart.html#development-mode)
 
 ```
-pip install --upgrade --force-reinstall --editable <path-to-mpoints-root>
+pip install --upgrade --force-reinstall --editable <path-to-napiod-root>
 ```

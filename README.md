@@ -14,7 +14,7 @@ The measurement of price impact is based on a model that utilises state-dependet
 We consider five streams of random times: 
 the stream 
 $T^{0}_1, T^{0}_2, \dots$ 
-of times when our labelled agent submits market orders to the market;
+of times when our labelled agent submits market orders;
 the stream 
 $T^{1}_1, T^{1}_2, \dots$ 
 of times when limit orders are executed on the bid side 

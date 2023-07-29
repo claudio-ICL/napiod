@@ -70,7 +70,7 @@ On the one hand, at every $T^{0}_j$ the state variable $X$ is updated, and the m
 On the other hand, every $T^{0}_j$ alters the intensity of occurrence of the random times $T^{1}$, $T^2$, $T^3$, $T^4$, 
 and these in turn will produce updates of the state process $X$. 
 A quantification of the first effect produces our measurement of direct price impact, 
-and a quantification of the second effect produces our mesurement od indirect price impact. 
+and a quantification of the second effect produces our measurement of indirect price impact. 
 Direct price impact is non-negative and non-decreasing, and the larger it is the more unfavourably the mid-price moves against the agent.
 Indirect impact, instead, can be positive or negative:
 it is positive when market participants react to the agent and move the mid-price in a way unfavourable to the agent;

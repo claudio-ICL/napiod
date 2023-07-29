@@ -16,7 +16,7 @@ the stream
 $T^{1}_1, T^{1}_2, \dots$ 
 of times when limit orders are executed on the bid side 
 (equivalently identified with the arrival times of sell market orders);
- the stream  
+the stream  
 $T^{2}_1, T^{2}_2, \dots$ 
 of times when limit orders are executed on the ask side 
 (equivalently identified with arrival times of buy market orders); 

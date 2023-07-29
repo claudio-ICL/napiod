@@ -18,6 +18,7 @@ ext_modules = [
 
 setuptools.setup(
     name="napiod",
+    description="Non-average price impact in order-driven markets",
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
 )

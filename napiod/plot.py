@@ -3,11 +3,8 @@ import numpy as np
 import copy
 import bisect
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from mpoints.plot_tools import (
-    sample_path as hawkes_sample,
-    kernels_exp as norms_of_hawkes_kernels,
-)
+from mpoints.plot_tools import sample_path as hawkes_sample  # NOQA
+from mpoints.plot_tools import kernels_exp as norms_of_hawkes_kernels  # NOQA
 
 
 def price_path(

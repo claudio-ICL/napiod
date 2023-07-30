@@ -79,7 +79,6 @@ class IntensitiesTest(unittest.TestCase):
         j = len(self.times) // 2
         t_j = self.times[j]
         t_j_next = self.times[j+1]
-        tau = self.times[-1]
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         lambdas_s = intensities._intensities_for_recon(
@@ -159,7 +158,7 @@ class IntensitiesTest(unittest.TestCase):
         t0: float = t1 / 2.
         self._test_accumulator_step(e, x, t0, t1)
 
-    def _test_accumulator_step(self, e, x,  t0, t1):
+    def _test_accumulator_step(self, e, x, t0, t1):
 
         def recon(s, t, acc_vector, acc_step):
             acc_vector = intensities._accumulator(
@@ -400,7 +399,6 @@ class IntensitiesTest(unittest.TestCase):
         j = len(self.times) // 2
         t_j = self.times[j]
         t_j_next = self.times[j+1]
-        tau = self.times[-1]
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         u = (t_j + self.times[int(1.5 * j)]) / 2.

@@ -79,7 +79,6 @@ class IntensitiesTest(unittest.TestCase):
         j = len(self.times) // 2
         t_j = self.times[j]
         t_j_next = self.times[j+1]
-        tau = self.times[-1]
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         lambdas_s = intensities._intensities_for_recon(
@@ -400,7 +399,6 @@ class IntensitiesTest(unittest.TestCase):
         j = len(self.times) // 2
         t_j = self.times[j]
         t_j_next = self.times[j+1]
-        tau = self.times[-1]
         s = (t_j + t_j_next) / 2.
         t = (s + t_j_next) / 2.
         u = (t_j + self.times[int(1.5 * j)]) / 2.

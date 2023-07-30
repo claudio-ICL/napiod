@@ -43,7 +43,7 @@ def main():
          napiod.model.TOTAL_NUMBER_OF_STATES),
         dtype=float
     )
-    agent_state_transition[:, [0, 1, 2,  3]] = .25
+    agent_state_transition[:, [0, 1, 2, 3]] = .25
 
     # Initialise the price impact model
     direction = -1

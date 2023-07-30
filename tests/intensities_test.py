@@ -158,7 +158,7 @@ class IntensitiesTest(unittest.TestCase):
         t0: float = t1 / 2.
         self._test_accumulator_step(e, x, t0, t1)
 
-    def _test_accumulator_step(self, e, x,  t0, t1):
+    def _test_accumulator_step(self, e, x, t0, t1):
 
         def recon(s, t, acc_vector, acc_step):
             acc_vector = intensities._accumulator(

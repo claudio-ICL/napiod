@@ -25,27 +25,12 @@ $ conda install pytest
 $ conda install seaborn
 ```
 
-### Build and install MPOINTS
-We build `mpoints` from source, which is the main dependency of `napiod`. Currently, `napiod` uses `mpoints` as a [git-submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-
-4. After the environment `napiod` has been activated (step 2. above), do
-```
-$ cd mpoints/mpoints
-$ python setup.py build_ext --inplace
-$ cd ..
-$ python -m build --sdist
-```
-
-5. The previous step (Step 4.) has generated a tar file in the directory `mpoints/dist/`. Use this file to install `mpoints`:
-```
-$ pip install --force-reinstall --upgrade <path-to-mpoints-tar-file>
-```
 
 ### Build and install NAPIOD
 Navigate to the root directory of `napiod`.
 Make sure that the environment `napiod` created in Step 1 is still activated. This is the same environment where you installed `mpoints` in Step 5. 
 
-6. Generate the c code and build `napiod`:
+4. Generate the c code and build `napiod`:
 ```
 $ cd napiod
 $ python setup.py build_ext --inplace
@@ -53,7 +38,7 @@ $ cd ..
 $ python -m build --sdist
 ```
 
-7. The previous step (Step 6.) has generated a tar file in the riectory `dist/`. Use this file to install `napiod`:
+5. The previous step (Step 6.) has generated a tar file in the riectory `dist/`. Use this file to install `napiod`:
 ```
 $ pip install --force-reinstall <path-to-napiod-tar-file>
 

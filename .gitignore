@@ -9,4 +9,5 @@ napiod.egg-info/
 build/
 dist/
 mpoints/
+examples/.ipynb_checkpoints/
 

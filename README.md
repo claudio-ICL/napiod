@@ -53,20 +53,22 @@ with the following interpretation of its components:
 The counting process $N$ is paired with the state variable $X = (X_1, X_2)$. 
 At time $t$, the state variable $X(t)$ summarises the configuration 
 of the limit order book at time $t$, 
-by recording a proxy for the volume imbalance, 
-and the variation of the mid-price compared to time $t-$. 
+by recording 
+the variation of the mid-price compared to time $t-$
+and
+a proxy for the volume imbalance.
 More precisely, 
-$X_1(t) = -1$ if the volumes imbalance at time $t$ is -33% or more negative; 
-$X_1(t) = 0$ if the volumes imbalance at time $t$ is between -33%  and +33%; 
-$X_1(t) = +1$ if the volumes imbalance at time $t$ is +33% or more positive; 
-$X_2(t) = -1$ if the latest event in the order book has decreased the mid-price;
-$X_2(t) = 0$ if the latest event in the order book has left the mid-price unchanged;
-$X_2(t) = +1$ if the latest event in the order book has increased the mid-price.
+$X_1(t) = -1$ if the latest event in the order book has decreased the mid-price;
+$X_1(t) = 0$ if the latest event in the order book has left the mid-price unchanged;
+$X_1(t) = +1$ if the latest event in the order book has increased the mid-price.
+$X_2(t) = -1$ if the volumes imbalance at time $t$ is -33% or more negative; 
+$X_2(t) = 0$ if the volumes imbalance at time $t$ is between -33%  and +33%; 
+$X_2(t) = +1$ if the volumes imbalance at time $t$ is +33% or more positive; 
 
 The pair $(N, X)$ is modelled as a state-dependent Hawkes process. 
 
 Each agent's market order $T^{0}_j$ has two effects.
-On the one hand, at every $T^{0}_j$ the state variable $X$ is updated, and the mid-price decreases if $X(T^{0}_j) = -1$ or it increases if $X(T^{0}_j) = +1$.
+On the one hand, at every $T^{0}_j$ the state variable $X$ is updated, and the mid-price decreases if $X_1(T^{0}_j) = -1$ or it increases if $X_1(T^{0}_j) = +1$.
 On the other hand, every $T^{0}_j$ alters the intensity of occurrence of the random times $T^{1}$, $T^2$, $T^3$, $T^4$, 
 and these in turn will produce updates of the state process $X$. 
 A quantification of the first effect produces our measurement of direct price impact, 

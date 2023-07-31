@@ -358,14 +358,54 @@ class ModelTest(unittest.TestCase):
             'Failed to reconcile stationary states',
         )
         self.assertEqual(
+            sorted(list(model.stationary_state_indexes())),
+            sorted(list(model.Constants.stationary_states())),
+            'Failed to reconcile stationary states with Constants',
+        )
+        self.assertEqual(
             list(model.inflationary_state_indexes()),
             list(model._inflationary_state_indexes_recon()),
             'Failed to reconcile inflationary states',
         )
         self.assertEqual(
+            sorted(list(model.inflationary_state_indexes())),
+            sorted(list(model.Constants.inflationary_states())),
+            'Failed to reconcile inflationary states with Constants',
+        )
+        self.assertEqual(
             list(model.deflationary_state_indexes()),
             list(model._deflationary_state_indexes_recon()),
             'Failed to reconcile deflationary states',
+        )
+        self.assertEqual(
+            sorted(list(model.deflationary_state_indexes())),
+            sorted(list(model.Constants.deflationary_states())),
+            'Failed to reconcile deflationary states with Constants',
+        )
+
+        multidim_states = [
+            (0, 0),
+            (-1, 0),
+            (+1, 0),
+        ]
+        prices = np.array([x[0] for x in multidim_states], dtype=int)
+        imbalances = np.array([x[1] for x in multidim_states], dtype=int)
+        k = model.NUMBER_OF_IMBALANCE_SEGMENTS
+        # The following states correspond to `multidim_states`
+        states = np.array([
+            k + k//2,
+            k // 2,
+            2*k + k // 2,
+        ], dtype=int)
+        self.assertTrue(
+            np.all(
+                prices == model.price_changes_from_states(states)),
+            'Could not reconcile price changes from states',
+        )
+        self.assertTrue(
+            np.all(
+                imbalances == model.imbalances_from_states(states)),
+            'Could not reconcile volume imbalances changes from states',
         )
 
     def test_direct_impact_of_seller(self):

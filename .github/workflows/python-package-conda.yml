@@ -24,14 +24,6 @@ jobs:
     - name: Install dependencies from Actions
       run: |
         conda env update --file .github/actions_solved.yml --name base
-    - name: Install mpoints
-      run: |
-        cd mpoints/mpoints/
-        python setup.py build_ext --inplace
-        cd ..
-        python -m build
-        pip install dist/mpoints-*-cp*.whl
-        cd ..
     - name: Install napiod
       run: |
         cd napiod
@@ -48,6 +40,4 @@ jobs:
         flake8 . --count  --ignore=E226,W503,W504,W605 --max-complexity=32 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        conda install pytest
-        pytest mpoints/tests/*_test.py
         pytest tests/*_test.py

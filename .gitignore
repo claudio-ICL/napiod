@@ -5,4 +5,7 @@ tests/hawkes_sample.py
 napiod/__pycache__/
 napiod/build/
 paper/tex/
+napiod.egg-info/
+build/
+dist/
 

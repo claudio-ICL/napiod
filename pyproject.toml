@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "napiod"
-version = "0.1.0"
+version = "1.0.0"
 description = "Non-average price impact in order driven markets"
 readme = "README.md"
 authors = [
@@ -15,6 +15,7 @@ dependencies = [
         "scipy",
         "ipykernel",
         "matplotlib",
+        "mpoints==1.0.0",
 ]
 
 [tool.setuptools.packages]

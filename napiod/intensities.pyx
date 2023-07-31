@@ -5,7 +5,6 @@ from libc.math cimport exp
 import bisect
 import numpy as np
 cimport numpy as np
-# from libc.stdlib cimport rand, RAND_MAX, srand
 
 DTYPEf = np.float64
 DTYPEi = np.int64

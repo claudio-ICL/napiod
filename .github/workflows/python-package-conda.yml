@@ -24,14 +24,6 @@ jobs:
     - name: Install dependencies from Actions
       run: |
         conda env update --file .github/actions_solved.yml --name base
-    - name: Install mpoints
-      run: |
-        cd mpoints/mpoints/
-        python setup.py build_ext --inplace
-        cd ..
-        python -m build
-        pip install dist/mpoints-*-cp*.whl
-        cd ..
     - name: Install napiod
       run: |
         cd napiod

@@ -8,4 +8,5 @@ paper/tex/
 napiod.egg-info/
 build/
 dist/
+mpoints/
 
